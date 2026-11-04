@@ -1,0 +1,8 @@
+# stream.conf.example — copy to stream.conf and fill in YOUR values.
+# NEVER share this file or commit the real stream.conf to GitHub:
+# anyone with your Stream Key can stream to your channel.
+RTMP_URL=rtmp://a.rtmp.youtube.com/live2
+STREAM_KEY=PASTE_YOUR_STREAM_KEY_HERE
+VIDEO=/home/ubuntu/youtube-live/videos/myvideo.mp4
+QUALITY=720p
+LOOP=1

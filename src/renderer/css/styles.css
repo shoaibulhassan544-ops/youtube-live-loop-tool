@@ -1,0 +1,77 @@
+/* YouTube Live Loop Tool — light sky-blue theme, matching the approved preview. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: #dbeaf7; color: #0f2540; }
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+h1 { font-size: 26px; margin: 0; color: #0b3fa0; }
+h2 { font-size: 15px; margin: 0 0 10px; color: #0f2540; }
+.muted { color: #5b7386; }
+.small { font-size: 12px; }
+label { display: block; font-size: 13px; font-weight: 600; margin: 8px 0; }
+input, textarea, select { width: 100%; padding: 8px 10px; margin-top: 4px; border: 1px solid #b9d2e8; border-radius: 8px; font: inherit; background: #fff; color: #0f2540; }
+input:focus, textarea:focus, select:focus { outline: 2px solid #4a90e2; border-color: #4a90e2; }
+.row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.btn { border: none; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-outline { background: #fff; color: #2563eb; border: 1px solid #2563eb; width: 100%; }
+.btn-ghost { background: transparent; color: #2563eb; }
+.btn-start { background: #16a34a; color: #fff; font-size: 17px; padding: 12px 26px; }
+.btn-stop { background: #dc2626; color: #fff; font-size: 17px; padding: 12px 26px; }
+
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: linear-gradient(180deg, #bcd9f5, #a8cdee); border-bottom: 1px solid #9cc0e4; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.yt-logo { background: #fff; color: #ff0000; font-size: 22px; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 10px; }
+.badge { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .5px; }
+.badge-off { background: #e2e8f0; color: #475569; }
+.badge-live { background: #dc2626; color: #fff; animation: pulse 1.6s infinite; }
+@keyframes pulse { 50% { opacity: .7; } }
+.free-pill { background: #16a34a; color: #fff; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-right: 8px; }
+
+.modebar { display: flex; gap: 10px; align-items: center; padding: 10px 20px; background: #fff; border-bottom: 1px solid #d3e3f2; }
+.mode-label { font-weight: 700; font-size: 13px; }
+.mode-btn { border: 1px solid #b9d2e8; background: #f1f7fd; border-radius: 999px; padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.mode-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.mode-hint { font-size: 12px; color: #5b7386; }
+
+.layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 16px 20px; flex: 1; align-items: start; }
+.sidebar, .main { display: flex; flex-direction: column; gap: 16px; }
+.card { background: #fff; border: 1px solid #d3e3f2; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(15, 37, 64, .06); }
+.channel { display: flex; gap: 12px; align-items: center; background: #f1f7fd; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: #16a34a; color: #fff; display: grid; place-items: center; font-size: 20px; overflow: hidden; flex-shrink: 0; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.channel-name { font-weight: 700; }
+.channel-meta { font-size: 12px; color: #5b7386; }
+.status-line { font-size: 12px; color: #5b7386; margin-top: 8px; }
+.cloud-card { border-color: #86c98f; background: #f6fdf7; }
+.server-line { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot-grey { background: #94a3b8; }
+.dot-green { background: #16a34a; }
+.dot-red { background: #dc2626; }
+
+.preview { position: relative; background: #0f172a; border-radius: 10px; overflow: hidden; aspect-ratio: 16/9; }
+.preview video { width: 100%; height: 100%; display: none; }
+.preview video.show { display: block; }
+.preview-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #cbd5e1; font-size: 14px; }
+.playlist { margin-top: 8px; font-size: 13px; }
+.playlist .item { padding: 6px 8px; border-bottom: 1px solid #eef4fa; display: flex; justify-content: space-between; gap: 8px; }
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.toggle { display: flex; justify-content: space-between; align-items: center; background: #f1f7fd; border-radius: 10px; padding: 10px 12px; }
+.switch { width: 40px; height: 22px; background: #cbd5e1; border-radius: 999px; position: relative; flex-shrink: 0; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left .15s; }
+.toggle input { display: none; }
+.toggle input:checked + .switch { background: #2563eb; }
+.toggle input:checked + .switch::after { left: 21px; }
+.log { background: #0f172a; color: #d1fae5; border-radius: 10px; padding: 12px; max-height: 220px; overflow: auto; font-size: 12px; white-space: pre-wrap; margin: 0; }
+.modal { position: fixed; inset: 0; background: rgba(15, 37, 64, .5); display: grid; place-items: center; z-index: 50; }
+.modal[hidden] { display: none; }
+.modal-box { background: #fff; border-radius: 16px; padding: 24px; max-width: 520px; width: 92%; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+.modal-box h2 { font-size: 19px; }
+.modal-box h3 { font-size: 14px; margin: 14px 0 6px; }
+.changelog { background: #f1f7fd; border-radius: 10px; padding: 12px; font-size: 13px; white-space: pre-wrap; max-height: 260px; overflow: auto; margin: 0; }
+.bottombar { position: sticky; bottom: 0; display: flex; gap: 12px; align-items: center; padding: 14px 20px; background: #fff; border-top: 1px solid #d3e3f2; }
+.stats { display: flex; gap: 24px; margin-left: auto; }
+.stat { display: flex; flex-direction: column; text-align: right; }
+.stat span { font-size: 11px; color: #5b7386; }
+.stat strong { font-size: 16px; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }

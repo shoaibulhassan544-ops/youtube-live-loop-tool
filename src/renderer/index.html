@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: https:; media-src file: blob:; connect-src 'self' https:;">
+<title>YouTube Live Loop Tool</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="yt-logo" aria-hidden="true">▶</span>
+      <h1>YouTube Live Tool</h1>
+      <span id="liveBadge" class="badge badge-off">OFFLINE</span>
+    </div>
+    <div class="top-actions">
+      <span class="free-pill">FREE — no licence, no payment</span>
+      <button id="btnHelp" class="btn btn-ghost" type="button">How it works</button>
+    </div>
+  </header>
+
+  <div class="modebar">
+    <span class="mode-label">Stream from:</span>
+    <button id="modeLocal" class="mode-btn active" type="button">Local Test (this PC)</button>
+    <button id="modeCloud" class="mode-btn" type="button">Cloud Server (24/7)</button>
+    <span id="modeHint" class="mode-hint">Local Test streams from this PC. Stop when this PC, power or internet stops — good for testing.</span>
+  </div>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="card">
+        <h2>Connected Channel</h2>
+        <div id="channelBox" class="channel">
+          <div class="avatar" id="channelAvatar">▶</div>
+          <div>
+            <div id="channelName" class="channel-name">Not connected</div>
+            <div id="channelMeta" class="channel-meta">Stream-Key mode works without connecting.</div>
+          </div>
+        </div>
+        <button id="btnConnect" class="btn btn-outline" type="button">＋ Connect YouTube</button>
+        <p class="muted small">Signs in with Google in your browser. Your password is never asked for or stored.</p>
+        <details class="small">
+          <summary>Google Client ID / Secret (for Connect)</summary>
+          <label>Client ID <input id="googleClientId" type="text" placeholder="xxxx.apps.googleusercontent.com" autocomplete="off"></label>
+          <label>Client Secret <input id="googleClientSecret" type="password" placeholder="Paste secret (stored encrypted)" autocomplete="off"></label>
+          <button id="btnSaveGoogle" class="btn btn-ghost" type="button">Save</button>
+        </details>
+      </section>
+
+      <section class="card">
+        <h2>Stream Key (required)</h2>
+        <p class="muted small">YouTube Studio → Create → Go Live → Stream → copy the Stream key. It is stored encrypted and never shown in logs.</p>
+        <label>RTMP URL <input id="rtmpUrl" type="text" value="rtmp://a.rtmp.youtube.com/live2"></label>
+        <label>Stream Key <input id="streamKey" type="password" placeholder="Paste stream key" autocomplete="off"></label>
+        <div class="row">
+          <button id="btnSaveKey" class="btn btn-primary" type="button">Save Key</button>
+          <button id="btnClearKey" class="btn btn-ghost" type="button">Remove</button>
+        </div>
+        <div id="keyStatus" class="status-line">No stream key saved yet.</div>
+      </section>
+
+      <section class="card cloud-card" id="cloudCard">
+        <h2>Cloud Server</h2>
+        <div class="server-line"><span id="serverDot" class="dot dot-grey"></span><strong id="serverStatus">Not set up</strong></div>
+        <p class="muted small">Live keeps running even if laptop power or internet goes off — only when the Cloud Server is Online.</p>
+        <label>Server IP / host <input id="serverHost" type="text" placeholder="e.g. 140.238.10.20" autocomplete="off"></label>
+        <label>SSH user <input id="serverUser" type="text" placeholder="ubuntu" autocomplete="off"></label>
+        <div class="row">
+          <button id="btnCheckServer" class="btn btn-outline" type="button">Check Server</button>
+          <button id="btnSaveServer" class="btn btn-ghost" type="button">Save</button>
+        </div>
+        <div id="serverMsg" class="status-line">Set up the free Oracle VM with the scripts in the server/ folder first.</div>
+      </section>
+      <section class="card">
+        <h2>Updates</h2>
+        <p class="muted small">When a new version is released, the app shows a pop-up here with what changed. Nothing is downloaded automatically.</p>
+        <label>GitHub repo <input id="updateRepo" type="text" placeholder="e.g. ShoaibAzeez/youtube-live-loop-tool" autocomplete="off"></label>
+        <div class="row">
+          <button id="btnCheckUpdate" class="btn btn-outline" type="button">Check for Updates</button>
+        </div>
+        <div id="updateMsg" class="status-line">Current version: v1.0.0</div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="card">
+        <h2>Selected Video Preview</h2>
+        <div class="preview">
+          <video id="videoPreview" controls preload="metadata"></video>
+          <div id="previewEmpty" class="preview-empty">No video selected yet.<br>Choose a video to start.</div>
+        </div>
+        <div class="row">
+          <button id="btnPick" class="btn btn-primary" type="button">Choose Video(s)</button>
+          <span id="videoMeta" class="muted">—</span>
+        </div>
+        <div id="playlist" class="playlist"></div>
+      </section>
+
+      <section class="card">
+        <label>Title <input id="title" type="text" placeholder="Live title (shown on YouTube)" maxlength="100"></label>
+        <label>Description <textarea id="description" rows="3" placeholder="Live description"></textarea></label>
+        <label>Hashtags <input id="hashtags" type="text" placeholder="#Nature #Live24x7 (space separated)"></label>
+        <p class="muted small">Tip: set the title, description and hashtags in YouTube Studio on the same live stream — the Stream Key only carries the video, not the text. A one-click “Apply to YouTube” needs the extra YouTube live scope and Google verification, so V1 keeps the safe Stream-Key path.</p>
+      </section>
+
+      <section class="card">
+        <h2>Settings</h2>
+        <div class="settings-grid">
+          <label>Quality
+            <select id="quality"><option value="720p">720p</option><option value="1080p">1080p</option></select>
+          </label>
+          <label class="toggle">Loop <input id="loopToggle" type="checkbox" checked><span class="switch"></span></label>
+          <label class="toggle">Playlist (play all, then repeat) <input id="playlistToggle" type="checkbox" checked disabled><span class="switch"></span></label>
+          <label class="toggle">Auto Restart on drop <input id="autoRestartToggle" type="checkbox" checked><span class="switch"></span></label>
+        </div>
+      </section>
+
+      <section class="card log-card">
+        <h2>Live Log</h2>
+        <pre id="logBox" class="log">Ready. Choose a video, save your stream key, then press Start Live.</pre>
+      </section>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <button id="btnStart" class="btn btn-start" type="button">▶ Start Live</button>
+    <button id="btnStop" class="btn btn-stop" type="button" disabled>■ Stop</button>
+    <div class="stats">
+      <div class="stat"><span>Live Uptime</span><strong id="uptime">00:00:00</strong></div>
+      <div class="stat"><span>Reconnects</span><strong id="reconnects">0</strong></div>
+      <div class="stat"><span>Status</span><strong id="streamState">Stopped</strong></div>
+    </div>
+  </footer>
+  <div id="updateModal" class="modal" hidden>
+    <div class="modal-box">
+      <h2>🎉 New version available: <span id="updateVersion"></span></h2>
+      <p class="muted small">Your version: <span id="updateCurrent"></span></p>
+      <h3>What changed in this update</h3>
+      <pre id="updateChangelog" class="changelog"></pre>
+      <div class="row">
+        <button id="btnDownloadUpdate" class="btn btn-primary" type="button">Download Update</button>
+        <button id="btnLaterUpdate" class="btn btn-ghost" type="button">Later</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

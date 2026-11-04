@@ -1,0 +1,17 @@
+[Unit]
+Description=YouTube 24/7 Live Loop (FFmpeg to YouTube RTMP)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/youtube-live
+# `run` mode streams in the foreground; systemd Restart=always is the safety
+# net (VM reboot, crash). The script itself also restarts ffmpeg on drop.
+ExecStart=/home/ubuntu/youtube-live/live-loop.sh run
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

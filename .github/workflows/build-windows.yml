@@ -1,0 +1,37 @@
+name: Build Windows installer
+
+# Builds the YouTube Live Loop Tool installer (.exe) on Windows.
+# Trigger: push a version tag (v1.0.0, v1.1.0, ...) or manual Run workflow.
+#
+# KNOWN BLOCKER (2026-11-04): GitHub Actions is DISABLED on the ShoaibAzeez
+# account (support ticket #4937420, still open, no reply yet). This workflow
+# is ready, but it CANNOT run on that account until GitHub re-enables
+# Actions. Fallback: create the repo on a different account (name to be
+# confirmed by the user) and push there — the workflow needs no changes.
+# Until then, build locally on Windows with build-windows.bat.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Self-test (syntax + FFmpeg command checks, no stream key needed)
+        run: npm test
+      - name: Build installer
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTubeLiveLoopTool-Setup
+          path: dist/*.exe
