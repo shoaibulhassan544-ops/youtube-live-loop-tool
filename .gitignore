@@ -3,3 +3,4 @@ dist/
 *.log
 server/stream.conf
 # Real stream keys / secrets must never be committed.
+__pycache__/

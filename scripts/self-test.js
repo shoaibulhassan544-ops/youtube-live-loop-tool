@@ -96,7 +96,10 @@ function run(cmd, opts) {
       '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', '2500k', '-maxrate', '2500k', '-bufsize', '5000k',
       '-r', '30', '-g', '60', '-c:a', 'aac', '-b:a', '128k', '-t', '5', '-f', 'flv', '-y', outFile];
     void built;
-    const enc = run(`ffmpeg ${args.map((a) => `'${a}'`).join(' ')}`);
+    // Run via spawnSync with an args array, NOT a shell string with single
+    // quotes — cmd.exe on Windows does not treat '...' as quoting, so ffmpeg
+    // saw '-hide_banner' as an output filename (CI run 41801403641).
+    const enc = spawnSync('ffmpeg', args, { encoding: 'utf8' });
     check('ffmpeg loop encode 5s to file', enc.status === 0 && fs.existsSync(outFile) && fs.statSync(outFile).size > 10000, enc.stderr);
   }
 
