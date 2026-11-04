@@ -3,12 +3,14 @@ name: Build Windows installer
 # Builds the YouTube Live Loop Tool installer (.exe) on Windows.
 # Trigger: push a version tag (v1.0.0, v1.1.0, ...) or manual Run workflow.
 #
-# KNOWN BLOCKER (2026-11-04): GitHub Actions is DISABLED on the ShoaibAzeez
-# account (support ticket #4937420, still open, no reply yet). This workflow
-# is ready, but it CANNOT run on that account until GitHub re-enables
-# Actions. Fallback: create the repo on a different account (name to be
-# confirmed by the user) and push there — the workflow needs no changes.
+# Repo lives on shoaibulhassan544-ops (Actions works there). It was moved
+# off the ShoaibAzeez account because GitHub Actions is DISABLED there
+# (support ticket #4937420, still open, no reply yet).
 # Until then, build locally on Windows with build-windows.bat.
+#
+# FIX (2026-11-04): windows-latest runners do NOT ship ffmpeg/ffprobe, so
+# the self-test's 4 ffmpeg checks failed (41 PASS, 4 FAIL, run 41800727216).
+# Install FFmpeg via Chocolatey before running the tests.
 on:
   push:
     tags: ['v*']
@@ -24,6 +26,8 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Install FFmpeg (needed by the self-test)
+        run: choco install ffmpeg -y --no-progress
       - name: Self-test (syntax + FFmpeg command checks, no stream key needed)
         run: npm test
       - name: Build installer
